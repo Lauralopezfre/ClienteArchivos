@@ -26,25 +26,22 @@ public class Cliente {
     private static final int INTENTOS = 5;
     
     public static void main(String[] args) throws IOException{
-        if((args.length < 2)||(args.length > 3)){
-            throw new IllegalArgumentException("Parameter(s): <Server> <Archivo> [<Port>]");
-        }
         
         //Se solicita la dirección
-        InetAddress address = InetAddress.getByName(args[0]);
+        InetAddress address = InetAddress.getByName("127.0.0.1");
         
         //Aqui es donde vamos a mandar el archivo
-        byte[] archivo = args[1].getBytes();
+        byte[] archivo = "hola".getBytes();
         
         //Aqui se solicita el puerto
-        int port = (args.length == 3) ? Integer.parseInt(args[2]) : 7;
+        int port = 7172;
         
         DatagramSocket datagrama = new  DatagramSocket();
         
         datagrama.setSoTimeout(TIMEOUT);
         
         DatagramPacket enviar = new DatagramPacket(archivo, archivo.length, address, port);
-        DatagramPacket recibir = new DatagramPacket(new byte[archivo.length], archivo.length);
+        DatagramPacket recibir = new DatagramPacket(new byte[9], 9);
         
         int tries = 0;
         boolean respuestaRecibido = false;
