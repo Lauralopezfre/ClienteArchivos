@@ -10,6 +10,7 @@ import java.io.InterruptedIOException;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.util.Scanner;
 import javax.imageio.IIOException;
 
 /**
@@ -26,12 +27,16 @@ public class Cliente {
     private static final int INTENTOS = 5;
     
     public static void main(String[] args) throws IOException{
+        Scanner in=new Scanner(System.in);
         
         //Se solicita la dirección
         InetAddress address = InetAddress.getByName("127.0.0.1");
         
-        //Aqui es donde vamos a mandar el archivo
-        byte[] archivo = ("0001"+"archivo").getBytes();
+        System.out.print("Nombre del archivo que quieres: ");
+        String nombre=in.next();
+        
+        byte[] archivo = (nombre).getBytes();
+        
                 
         //Aqui se solicita el puerto
         int port = 7171;
@@ -41,7 +46,7 @@ public class Cliente {
         datagrama.setSoTimeout(TIMEOUT);
         
         DatagramPacket enviar = new DatagramPacket(archivo, archivo.length, address, port);
-        DatagramPacket recibir = new DatagramPacket(new byte[9], 9);
+        DatagramPacket recibir = new DatagramPacket(new byte[255], 255);
         
         int tries = 0;
         boolean respuestaRecibido = false;
@@ -61,7 +66,7 @@ public class Cliente {
         }while((!respuestaRecibido)&&(tries < INTENTOS));
         
         if(respuestaRecibido){
-            System.out.println("Recibido " + new String(recibir.getData()));
+            System.out.println("Contenido: " + new String(recibir.getData()));
         }else{
             System.out.println("No responde");
         }
