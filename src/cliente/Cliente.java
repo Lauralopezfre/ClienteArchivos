@@ -31,10 +31,10 @@ public class Cliente {
         InetAddress address = InetAddress.getByName("127.0.0.1");
         
         //Aqui es donde vamos a mandar el archivo
-        byte[] archivo = "hola".getBytes();
+        byte[] archivo = ("0001"+"archivo").getBytes();
         
         //Aqui se solicita el puerto
-        int port = 7172;
+        int port = 7171;
         
         DatagramSocket datagrama = new  DatagramSocket();
         
