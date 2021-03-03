@@ -32,7 +32,7 @@ public class Cliente {
         
         //Aqui es donde vamos a mandar el archivo
         byte[] archivo = ("0001"+"archivo").getBytes();
-        
+                
         //Aqui se solicita el puerto
         int port = 7171;
         
