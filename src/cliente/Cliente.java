@@ -50,10 +50,21 @@ public class Cliente {
         
         int tries = 0;
         boolean respuestaRecibido = false;
+        String mensaje = "";
         do{
             datagrama.send(enviar);
+            
             try{
                 datagrama.receive(recibir);
+                
+                byte k = 1;
+                if(recibir.getData().equals(k) ) {
+                    
+                    datagrama.receive(recibir);
+                    System.out.println(new String(recibir.getData()));
+                    mensaje += new String(recibir.getData());
+                    k++;
+                }
                 
                 if(!recibir.getAddress().equals(address)){
                     throw new IIOException("No se supo de quien se recibio");
@@ -63,10 +74,10 @@ public class Cliente {
                 tries++;
                 System.out.println("Intentos " + (INTENTOS - tries));
             }
-        }while((!respuestaRecibido)&&(tries < INTENTOS));
+        }while((!respuestaRecibido)&&(tries < INTENTOS)&& recibir.getData().equals(0));
         
         if(respuestaRecibido){
-            System.out.println("Contenido: " + new String(recibir.getData()));
+            System.out.println("Contenido: " + mensaje);
         }else{
             System.out.println("No responde");
         }
