@@ -39,9 +39,9 @@ public class Cliente {
         //Aqui se solicita el puerto
         int port = 7171;
 
-        DatagramSocket datagrama = new DatagramSocket();
+        DatagramSocket socketCliente = new DatagramSocket();
 
-        datagrama.setSoTimeout(TIMEOUT);
+        socketCliente.setSoTimeout(TIMEOUT);
 
         DatagramPacket enviar = new DatagramPacket(archivo, archivo.length, address, port);
         DatagramPacket recibir = new DatagramPacket(new byte[255], 255);
@@ -50,38 +50,46 @@ public class Cliente {
         boolean respuestaRecibido = false;
         String mensaje = "";
         do {
-            datagrama.send(enviar);
+            socketCliente.send(enviar);
 
             try {
-                datagrama.receive(recibir);
+                socketCliente.receive(recibir);
 
-                byte k = 1;
+                byte id = 1;
                 byte[] ks = recibir.getData();
 
-                if (ks[0] == k) {
-
-                    datagrama.receive(recibir);
-                    System.out.println(new String(recibir.getData()));
+                if (ks[0] == id) {
+                    for (int i = 0; ks[0] == id; i++) {
+                        socketCliente.receive(recibir);
+                        System.out.println(new String(recibir.getData()));
+                        mensaje += new String(recibir.getData());
+                        id++;
+                    }
+                } else {
                     mensaje += new String(recibir.getData());
-                    k++;
                 }
 
                 if (!recibir.getAddress().equals(address)) {
                     throw new IIOException("No se supo de quien se recibio");
                 }
+                socketCliente.receive(recibir);
+
+                //if (recibir.getData()[0] == 0) {
                 respuestaRecibido = true;
+                //}
+
             } catch (InterruptedIOException e) {
                 tries++;
                 System.out.println("Intentos " + (INTENTOS - tries));
             }
-        } while ((!respuestaRecibido) && (tries < INTENTOS) && recibir.getData().equals(0));
-
+        } while (((!respuestaRecibido) && (tries < INTENTOS)));
+//|| recibir.getData()[0]!=0
         if (respuestaRecibido) {
             System.out.println("Contenido: " + mensaje);
         } else {
             System.out.println("No responde");
         }
-        datagrama.close();
+        socketCliente.close();
     }
 
 }
