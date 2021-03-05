@@ -13,6 +13,7 @@ import java.io.InterruptedIOException;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Scanner;
 import javax.imageio.IIOException;
 
@@ -27,17 +28,26 @@ public class Cliente {
      */
     private static final int TIMEOUT = 3000;
     private static final int INTENTOS = 5;
+    public Mensaje mensaje;
+    public String nombreArchivo;
 
-    public static void main(String[] args) throws IOException {
-        Scanner in = new Scanner(System.in);
+    //public static void main(String[] args) throws IOException {
 
+    public Cliente(String nombreArchivo) {  
+        this.mensaje = new Mensaje();
+        this.nombreArchivo = nombreArchivo;
+    }        
+        
+    public void obtenerArchivo() throws SocketException, IOException{
+        //Scanner in = new Scanner(System.in);
+        
         //Se solicita la dirección
         InetAddress address = InetAddress.getByName("127.0.0.1");
 
-        System.out.print("Nombre del archivo que quieres: ");
-        String nombre = in.next();
+        //System.out.print("Nombre del archivo que quieres: ");
+        //String nombre = in.next();
 
-        byte[] archivo = (nombre).getBytes();
+        byte[] archivo = (nombreArchivo).getBytes();
 
         //Aqui se solicita el puerto
         int port = 7171;
@@ -51,7 +61,7 @@ public class Cliente {
 
         int tries = 0;
         boolean respuestaRecibido = false;
-        String mensaje = "";
+        //String mensaje = "";
 
         // Se envia el archivo solicitado
         socketCliente.send(enviar);
@@ -81,10 +91,11 @@ public class Cliente {
 
                     if (!recibir.getAddress().equals(address)) {
                         throw new IIOException("No se supo de quien se recibio");
-                    }
-
+                    }                                        
+                    
                     // añade el mensaje al total
-                    mensaje += new String(recibir.getData(), recibir.getOffset(), recibir.getLength());
+                    String contenido = new String(recibir.getData(), recibir.getOffset(), recibir.getLength());
+                    this.mensaje.setContenido(contenido);
 
                     // incrementa el orden
                     id++;
@@ -108,7 +119,7 @@ public class Cliente {
         // si se recibieron los paquetes
         if (respuestaRecibido) {
             
-            System.out.println("Contenido: " + mensaje);
+            System.out.println("Contenido: " + mensaje.getContenido());
             
             //Creación del archivo
             
@@ -121,7 +132,7 @@ public class Cliente {
 
             FileWriter escribir = new FileWriter(archivoRecibido);
             BufferedWriter buffer = new BufferedWriter(escribir);
-            buffer.write(mensaje);
+            buffer.write(mensaje.getContenido());
             buffer.close();
             
         } else {
