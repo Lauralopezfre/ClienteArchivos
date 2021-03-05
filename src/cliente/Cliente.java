@@ -59,36 +59,39 @@ public class Cliente {
                 byte[] ks = recibir.getData();
 
                 if (ks[0] == id) {
-                    for (int i = 0; ks[0] == id; i++) {
-                        socketCliente.receive(recibir);
-                        System.out.println(new String(recibir.getData()));
-                        mensaje += new String(recibir.getData());
-                        id++;
-                    }
-                } else {
+                    socketCliente.receive(recibir);
+                    //System.out.println(new String(recibir.getData()));
+                    System.out.println(id);
                     mensaje += new String(recibir.getData());
+                    id++;
+                } else {
+                    socketCliente.receive(recibir);
+                    mensaje += new String(recibir.getData());
+                    respuestaRecibido = true;
                 }
 
                 if (!recibir.getAddress().equals(address)) {
-                    throw new IIOException("No se supo de quien se recibio");
+                    throw new IIOException("No se supo de quien se recibió");
                 }
-                socketCliente.receive(recibir);
 
-                //if (recibir.getData()[0] == 0) {
-                respuestaRecibido = true;
-                //}
+                //TE AMOOOOOOO
+                socketCliente.receive(recibir);
+                if(recibir.getData()[0]==0){
+                    respuestaRecibido = true;
+                }
+                
 
             } catch (InterruptedIOException e) {
                 tries++;
                 System.out.println("Intentos " + (INTENTOS - tries));
             }
         } while (((!respuestaRecibido) && (tries < INTENTOS)));
-//|| recibir.getData()[0]!=0
         if (respuestaRecibido) {
             System.out.println("Contenido: " + mensaje);
         } else {
             System.out.println("No responde");
         }
+
         socketCliente.close();
     }
 
