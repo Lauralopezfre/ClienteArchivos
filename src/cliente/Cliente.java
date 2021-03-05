@@ -5,6 +5,9 @@
  */
 package cliente;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.DatagramSocket;
@@ -55,7 +58,7 @@ public class Cliente {
 
         // Orden del primer paquete
         byte id = (byte) 1;
-        
+
         byte orden = (byte) 1;
 
         // En un ciclo
@@ -78,15 +81,15 @@ public class Cliente {
 
                     if (!recibir.getAddress().equals(address)) {
                         throw new IIOException("No se supo de quien se recibio");
-                    } 
+                    }
 
                     // añade el mensaje al total
                     mensaje += new String(recibir.getData(), recibir.getOffset(), recibir.getLength());
 
                     // incrementa el orden
                     id++;
-                
-                // si recibe como orden 0, significa que ya no hay mas paquetes por recibir
+
+                    // si recibe como orden 0, significa que ya no hay mas paquetes por recibir
                 } else if (recibir.getData()[0] == 0) {
 
                     respuestaRecibido = true;
@@ -99,16 +102,32 @@ public class Cliente {
                 tries++;
                 System.out.println("Intentos " + (INTENTOS - tries));
             }
-        // si todavia hay mas paquetes y mas intentos, se continua recibiendo paquetes
+            // si todavia hay mas paquetes y mas intentos, se continua recibiendo paquetes
         } while (((orden != 0) && (tries < INTENTOS)));
 
         // si se recibieron los paquetes
         if (respuestaRecibido) {
+            
             System.out.println("Contenido: " + mensaje);
+            
+            //Creación del archivo
+            
+            String ruta = "archivos\\Document" + (int)Math.floor(Math.random() * 100) + ".txt";
+            File archivoRecibido = new File(ruta);
+
+            if (archivoRecibido.exists() == false) {
+                archivoRecibido.createNewFile();
+            }
+
+            FileWriter escribir = new FileWriter(archivoRecibido);
+            BufferedWriter buffer = new BufferedWriter(escribir);
+            buffer.write(mensaje);
+            buffer.close();
+            
         } else {
             System.out.println("No responde");
         }
-        
+
         socketCliente.close();
     }
 
