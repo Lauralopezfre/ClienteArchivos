@@ -44,54 +44,71 @@ public class Cliente {
         socketCliente.setSoTimeout(TIMEOUT);
 
         DatagramPacket enviar = new DatagramPacket(archivo, archivo.length, address, port);
-        DatagramPacket recibir = new DatagramPacket(new byte[255], 255);
+        DatagramPacket recibir = new DatagramPacket(new byte[258], 258);
 
         int tries = 0;
         boolean respuestaRecibido = false;
         String mensaje = "";
+
+        // Se envia el archivo solicitado
+        socketCliente.send(enviar);
+
+        // Orden del primer paquete
+        byte id = (byte) 1;
+        
+        byte orden = (byte) 1;
+
+        // En un ciclo
         do {
-            socketCliente.send(enviar);
-
             try {
+                // recibe el orden
                 socketCliente.receive(recibir);
-
-                byte id = 1;
-                byte[] ks = recibir.getData();
-
-                if (ks[0] == id) {
-                    socketCliente.receive(recibir);
-                    //System.out.println(new String(recibir.getData()));
-                    System.out.println(id);
-                    mensaje += new String(recibir.getData());
-                    id++;
-                } else {
-                    socketCliente.receive(recibir);
-                    mensaje += new String(recibir.getData());
-                    respuestaRecibido = true;
-                }
 
                 if (!recibir.getAddress().equals(address)) {
-                    throw new IIOException("No se supo de quien se recibió");
+                    throw new IIOException("No se supo de quien se recibio");
                 }
 
-                //TE AMOOOOOOO
-                socketCliente.receive(recibir);
-                if(recibir.getData()[0]==0){
-                    respuestaRecibido = true;
-                }
+                // obtiene el byte del orden
+                orden = recibir.getData()[0];
+
+                if (orden == id) {
+
+                    // recibe el mensaje
+                    socketCliente.receive(recibir);
+
+                    if (!recibir.getAddress().equals(address)) {
+                        throw new IIOException("No se supo de quien se recibio");
+                    } 
+
+                    // añade el mensaje al total
+                    mensaje += new String(recibir.getData(), recibir.getOffset(), recibir.getLength());
+
+                    // incrementa el orden
+                    id++;
                 
+                // si recibe como orden 0, significa que ya no hay mas paquetes por recibir
+                } else if (recibir.getData()[0] == 0) {
+
+                    respuestaRecibido = true;
+
+                } else {
+                    throw new InterruptedIOException();
+                }
 
             } catch (InterruptedIOException e) {
                 tries++;
                 System.out.println("Intentos " + (INTENTOS - tries));
             }
-        } while (((!respuestaRecibido) && (tries < INTENTOS)));
+        // si todavia hay mas paquetes y mas intentos, se continua recibiendo paquetes
+        } while (((orden != 0) && (tries < INTENTOS)));
+
+        // si se recibieron los paquetes
         if (respuestaRecibido) {
             System.out.println("Contenido: " + mensaje);
         } else {
             System.out.println("No responde");
         }
-
+        
         socketCliente.close();
     }
 
